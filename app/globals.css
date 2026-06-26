@@ -1,0 +1,154 @@
+@import "@fontsource/bricolage-grotesque/400.css";
+@import "@fontsource/bricolage-grotesque/500.css";
+@import "@fontsource/bricolage-grotesque/600.css";
+@import "@fontsource/bricolage-grotesque/700.css";
+
+@import "tailwindcss";
+
+/* Bricolage Grotesque self-hosted with Fontsource */
+
+
+/* ========== THEME: Custom Design Tokens ========== */
+@theme {
+  /* Colors */
+  --color-emergency-red: #DC2626;
+  --color-emergency-darkred: #991B1B;
+  --color-emergency-lightred: #FEE2E2;
+  --color-medical-blue: #2563EB;
+  --color-medical-darkblue: #1D4ED8;
+  --color-medical-lightblue: #DBEAFE;
+  --color-safety-teal: #14B8A6;
+  --color-safety-darkteal: #0F766E;
+  --color-safety-lightteal: #CCFBF1;
+  --color-surface-light: #F8FAFC;
+  --color-surface-dark: #0F172A;
+  --color-surface-card: #FFFFFF;
+  --color-surface-muted: #F1F5F9;
+
+  /* Fonts */
+  --font-heading: 'Bricolage Grotesque', sans-serif;
+  --font-body: 'Bricolage Grotesque', sans-serif;
+
+  /* Custom animations */
+  --animate-pulse-emergency: pulse-emergency 2s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.6s ease-out forwards;
+  --animate-fade-in: fade-in 0.8s ease-out forwards;
+  --animate-slide-right: slide-right 0.5s ease-out forwards;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+}
+
+/* ========== KEYFRAMES ========== */
+@keyframes pulse-emergency {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(220, 38, 38, 0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slide-right {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(20, 184, 166, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(20, 184, 166, 0.6); }
+}
+
+/* ========== BASE LAYER ========== */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body text-surface-dark bg-surface-light antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+/* ========== COMPONENT LAYER ========== */
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg;
+  }
+
+  .emergency-gradient {
+    @apply bg-gradient-to-br from-emergency-red via-emergency-darkred to-red-900;
+  }
+
+  .medical-gradient {
+    @apply bg-gradient-to-br from-medical-blue via-medical-darkblue to-blue-900;
+  }
+
+  .safety-gradient {
+    @apply bg-gradient-to-br from-safety-teal via-safety-darkteal to-teal-800;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-emergency-red to-medical-blue;
+  }
+}
+
+@layer utilities {
+  .animate-pulse-emergency {
+    animation: var(--animate-pulse-emergency);
+  }
+  .animate-float {
+    animation: var(--animate-float);
+  }
+  .animate-fade-up {
+    animation: var(--animate-fade-up);
+  }
+  .animate-fade-in {
+    animation: var(--animate-fade-in);
+  }
+  .animate-slide-right {
+    animation: var(--animate-slide-right);
+  }
+  .animate-glow {
+    animation: var(--animate-glow);
+  }
+}
+
+/* ========== UTILITIES ========== */
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 20px;
+  }
+}
