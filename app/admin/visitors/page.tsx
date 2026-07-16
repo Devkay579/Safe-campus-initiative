@@ -31,7 +31,7 @@ function daysAgo(days: number): Date {
   return d;
 }
 
-function aggregateBy<T extends object>(
+function aggregateBy<T extends VisitorSummary>(
   items: T[],
   keyFn: (item: T) => string | null | undefined,
 ): { value: string; count: number }[] {
@@ -79,7 +79,6 @@ async function getStats(query: VisitorsQuery) {
     weekVisitors,
     monthVisitors,
     recentVisitors,
-    allVisitors,
     visitorsWithLocation,
     totalFilteredVisitors,
   ] = await Promise.all([
@@ -103,15 +102,6 @@ async function getStats(query: VisitorsQuery) {
       },
     }),
     prisma.visitorLog.findMany({
-      select: {
-        country: true,
-        city: true,
-        isp: true,
-        browser: true,
-        deviceType: true,
-      },
-    }) as Promise<VisitorSummary[]>,
-    prisma.visitorLog.findMany({
       where: {
         ...where,
         latitude: { not: null },
@@ -130,6 +120,16 @@ async function getStats(query: VisitorsQuery) {
     }),
     prisma.visitorLog.count({ where }),
   ]);
+
+  const allVisitors = (await prisma.visitorLog.findMany({
+    select: {
+      country: true,
+      city: true,
+      isp: true,
+      browser: true,
+      deviceType: true,
+    },
+  })) as VisitorSummary[];
 
   const countries = aggregateBy(allVisitors, (v) => v.country);
   const cities = aggregateBy(allVisitors, (v) => v.city);
