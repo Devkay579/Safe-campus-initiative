@@ -15,7 +15,7 @@ export default function ContactCard({ contact, index }: ContactCardProps) {
 
   const handleCopy = async () => {
     if (!contact.displayNumber || contact.displayNumber === 'Visit Phase 2') return;
-    await navigator.clipboard.writeText(contact.displayNumber.replace(/\s/g, ''));
+    await navigator.clipboard.writeText((contact.displayNumber ?? '').replace(/\s/g, ''));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

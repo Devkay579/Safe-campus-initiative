@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model VisitorLog {
+  id           Int      @id @default(autoincrement())
+  ip           String
+  country      String?
+  countryCode  String?
+  region       String?
+  city         String?
+  latitude     Float?
+  longitude    Float?
+  timezone     String?
+  isp          String?
+  asn          String?
+  postalCode   String?
+  userAgent    String?
+  referer      String?
+  visitedPage  String?
+  deviceType   String?
+  browser      String?
+  operatingSystem String?
+  createdAt    DateTime @default(now())
+
+  @@map("visitor_logs")
+}

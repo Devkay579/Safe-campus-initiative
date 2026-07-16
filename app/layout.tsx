@@ -3,6 +3,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ScrollToTop from '@/components/ScrollToTop';
+import VisitorTracker from '@/components/VisitorTracker';
 
 export const metadata: Metadata = {
   title: {
@@ -38,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body className="font-body text-surface-dark bg-surface-light antialiased">
+        <VisitorTracker />
         <Navbar />
         <main className="min-h-screen">{children}</main>
         <Footer />
