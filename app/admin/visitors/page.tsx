@@ -10,6 +10,14 @@ type VisitorsQuery = {
   page?: string;
 };
 
+type VisitorSummary = {
+  country?: string | null;
+  city?: string | null;
+  isp?: string | null;
+  browser?: string | null;
+  deviceType?: string | null;
+};
+
 function startOfToday(): Date {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -23,7 +31,7 @@ function daysAgo(days: number): Date {
   return d;
 }
 
-function aggregateBy<T>(
+function aggregateBy<T extends object>(
   items: T[],
   keyFn: (item: T) => string | null | undefined,
 ): { value: string; count: number }[] {
@@ -102,7 +110,7 @@ async function getStats(query: VisitorsQuery) {
         browser: true,
         deviceType: true,
       },
-    }),
+    }) as Promise<VisitorSummary[]>,
     prisma.visitorLog.findMany({
       where: {
         ...where,
