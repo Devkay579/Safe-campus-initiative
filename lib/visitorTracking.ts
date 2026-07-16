@@ -31,22 +31,27 @@ async function fetchGeolocation(ip: string) {
     return cached.data;
   }
 
-  const endpoint = geoApiKey
-    ? `${GEO_API_URL}/${ip}/json/?key=${geoApiKey}`
-    : `${GEO_API_URL}/${ip}/json/`;
+  try {
+    const endpoint = geoApiKey
+      ? `${GEO_API_URL}/${ip}/json/?key=${geoApiKey}`
+      : `${GEO_API_URL}/${ip}/json/`;
 
-  const response = await fetch(endpoint, {
-    headers: { Accept: 'application/json' },
-    next: { revalidate: 60 * 60 * 24 },
-  });
+    const response = await fetch(endpoint, {
+      headers: { Accept: 'application/json' },
+      next: { revalidate: 60 * 60 * 24 },
+    });
 
-  if (!response.ok) {
-    throw new Error('Geolocation lookup failed');
+    if (!response.ok) {
+      throw new Error(`Geolocation lookup failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    requestCache.set(ip, { expiresAt: Date.now() + CACHE_TTL_MS, data });
+    return data;
+  } catch (error) {
+    console.warn(`Geolocation lookup failed for ${ip}`, error);
+    return null;
   }
-
-  const data = await response.json();
-  requestCache.set(ip, { expiresAt: Date.now() + CACHE_TTL_MS, data });
-  return data;
 }
 
 export async function trackVisitor(input?: { headers?: Headers; ip?: string | null; userAgent?: string | null; referer?: string | null; page?: string | null }) {
@@ -76,20 +81,21 @@ export async function trackVisitor(input?: { headers?: Headers; ip?: string | nu
     }
 
     const geo = await fetchGeolocation(ip);
+    const geoData = geo ?? {};
 
     await prisma.visitorLog.create({
       data: {
         ip,
-        country: geo.country_name ?? null,
-        countryCode: geo.country_code ?? null,
-        region: geo.region ?? null,
-        city: geo.city ?? null,
-        latitude: typeof geo.latitude === 'number' ? geo.latitude : null,
-        longitude: typeof geo.longitude === 'number' ? geo.longitude : null,
-        timezone: geo.timezone ?? null,
-        isp: geo.org ?? null,
-        asn: geo.asn ?? null,
-        postalCode: geo.postal ?? null,
+        country: typeof geoData.country_name === 'string' ? geoData.country_name : null,
+        countryCode: typeof geoData.country_code === 'string' ? geoData.country_code : null,
+        region: typeof geoData.region === 'string' ? geoData.region : null,
+        city: typeof geoData.city === 'string' ? geoData.city : null,
+        latitude: typeof geoData.latitude === 'number' ? geoData.latitude : null,
+        longitude: typeof geoData.longitude === 'number' ? geoData.longitude : null,
+        timezone: typeof geoData.timezone === 'string' ? geoData.timezone : null,
+        isp: typeof geoData.org === 'string' ? geoData.org : null,
+        asn: typeof geoData.asn === 'string' ? geoData.asn : null,
+        postalCode: typeof geoData.postal === 'string' ? geoData.postal : null,
         userAgent: userAgent ?? null,
         referer: referer ?? null,
         visitedPage: visitedPage ?? null,
@@ -99,7 +105,11 @@ export async function trackVisitor(input?: { headers?: Headers; ip?: string | nu
       },
     });
 
-    return { ok: true, stored: true };
+    return {
+      ok: true,
+      stored: true,
+      geolocationFallback: geo == null,
+    };
   } catch (error) {
     console.error('Visitor tracking failed', error);
     return { ok: false, error: 'tracking failed' };
