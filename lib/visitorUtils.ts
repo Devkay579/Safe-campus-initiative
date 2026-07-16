@@ -13,7 +13,7 @@ export function isValidIp(ip: string | null | undefined) {
   const ipv6 = /^(?:[0-9a-fA-F]{1,4}:){1,7}[0-9a-fA-F]{1,4}$/;
   return ipv4.test(ip) || ipv6.test(ip);
 }
-
+//export
 export function parseUserAgent(userAgent: string | null | undefined) {
   const ua = userAgent ?? '';
   const browser = ua.includes('Firefox')
