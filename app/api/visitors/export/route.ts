@@ -1,8 +1,29 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+type ExportVisitor = {
+  id: number;
+  ip: string;
+  country: string | null;
+  countryCode: string | null;
+  region: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  timezone: string | null;
+  isp: string | null;
+  asn: string | null;
+  postalCode: string | null;
+  browser: string | null;
+  deviceType: string | null;
+  operatingSystem: string | null;
+  referer: string | null;
+  visitedPage: string | null;
+  createdAt: Date;
+};
+
 export async function GET() {
-  const visitors = await prisma.visitorLog.findMany({
+  const visitors = (await prisma.visitorLog.findMany({
     orderBy: { createdAt: 'desc' },
     take: 500,
     select: {
@@ -25,7 +46,7 @@ export async function GET() {
       visitedPage: true,
       createdAt: true,
     },
-  });
+  })) as ExportVisitor[];
 
   const csv = [
     ['id', 'ip', 'country', 'countryCode', 'region', 'city', 'latitude', 'longitude', 'timezone', 'isp', 'asn', 'postalCode', 'browser', 'deviceType', 'operatingSystem', 'referer', 'visitedPage', 'createdAt'].join(','),
