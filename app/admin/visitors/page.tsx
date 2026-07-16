@@ -18,6 +18,41 @@ type VisitorSummary = {
   deviceType?: string | null;
 };
 
+type RecentVisitor = {
+  id: number;
+  ip: string;
+  country?: string | null;
+  city?: string | null;
+  browser?: string | null;
+  deviceType?: string | null;
+  createdAt: Date;
+};
+
+type StatsResult = {
+  totalVisitors: number;
+  todayVisitors: number;
+  weekVisitors: number;
+  monthVisitors: number;
+  recentVisitors: RecentVisitor[];
+  countries: { value: string; count: number }[];
+  cities: { value: string; count: number }[];
+  isps: { value: string; count: number }[];
+  browsers: { value: string; count: number }[];
+  devices: { value: string; count: number }[];
+  visitorsWithLocation: Array<{
+    id: number;
+    ip: string;
+    country?: string | null;
+    city?: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    createdAt: Date;
+  }>;
+  totalFilteredVisitors: number;
+  page: number;
+  pageCount: number;
+};
+
 function startOfToday(): Date {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -45,7 +80,7 @@ function aggregateBy<T extends VisitorSummary>(
     .sort((a, b) => b.count - a.count);
 }
 
-async function getStats(query: VisitorsQuery) {
+async function getStats(query: VisitorsQuery): Promise<StatsResult> {
   const search = query.search?.trim();
   const country = query.country?.trim();
   const browser = query.browser?.trim();
@@ -100,7 +135,7 @@ async function getStats(query: VisitorsQuery) {
         deviceType: true,
         createdAt: true,
       },
-    }),
+    }) as Promise<RecentVisitor[]>,
     prisma.visitorLog.findMany({
       where: {
         ...where,
@@ -161,7 +196,7 @@ export default async function VisitorsAdminPage({
   searchParams?: Promise<VisitorsQuery>;
 }) {
   const resolvedParams = await searchParams;
-  let stats;
+  let stats: StatsResult | null = null;
   try {
     stats = await getStats(resolvedParams ?? {});
   } catch (err) {
